@@ -95,15 +95,18 @@ export default function handler(req, res) {
   ];
 
   if (req.method === 'GET') {
-    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = url.pathname;
     
-    if (pathname.includes('/categories')) {
+    // Handle different endpoints
+    if (pathname.endsWith('/categories') || pathname.includes('/categories')) {
       res.status(200).json(mockCategories);
     } else if (pathname.includes('/featured/popular')) {
       res.status(200).json(mockProducts.slice(0, 4));
     } else {
       // Return all products or filtered products
-      const { category, search } = req.query;
+      const category = url.searchParams.get('category');
+      const search = url.searchParams.get('search');
       let filteredProducts = mockProducts;
       
       if (category) {

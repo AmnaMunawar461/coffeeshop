@@ -11,9 +11,10 @@ export default function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = url.pathname;
     
-    if (pathname.includes('/login')) {
+    if (pathname.includes('/login') || pathname.endsWith('/login')) {
       const { username, password } = req.body;
       
       // Mock authentication - in production, use proper authentication
@@ -37,7 +38,7 @@ export default function handler(req, res) {
       } else {
         res.status(401).json({ error: 'Invalid credentials' });
       }
-    } else if (pathname.includes('/register')) {
+    } else if (pathname.includes('/register') || pathname.endsWith('/register')) {
       const { username, email, password, firstName, lastName } = req.body;
       
       if (username && email && password) {
@@ -64,9 +65,10 @@ export default function handler(req, res) {
       res.status(404).json({ error: 'Endpoint not found' });
     }
   } else if (req.method === 'GET') {
-    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = url.pathname;
     
-    if (pathname.includes('/profile')) {
+    if (pathname.includes('/profile') || pathname.endsWith('/profile')) {
       // Mock profile data
       const mockUser = {
         id: 1,

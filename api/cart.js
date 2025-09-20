@@ -37,9 +37,10 @@ export default function handler(req, res) {
   if (req.method === 'GET') {
     res.status(200).json(mockCart);
   } else if (req.method === 'POST') {
-    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = url.pathname;
     
-    if (pathname.includes('/add')) {
+    if (pathname.includes('/add') || pathname.endsWith('/add')) {
       res.status(200).json({ message: 'Item added to cart successfully' });
     } else {
       res.status(404).json({ error: 'Endpoint not found' });

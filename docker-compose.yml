@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: coffeeshop_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: coffeeshop
+      MYSQL_USER: coffeeuser
+      MYSQL_PASSWORD: coffeepass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - coffeeshop_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  backend:
+    build: ./backend
+    container_name: coffeeshop_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=coffeeshop
+      - DB_USER=coffeeuser
+      - DB_PASSWORD=coffeepass
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - mysql
+    networks:
+      - coffeeshop_network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: coffeeshop_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - coffeeshop_network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  mysql_data:
+
+networks:
+  coffeeshop_network:
+    driver: bridge
